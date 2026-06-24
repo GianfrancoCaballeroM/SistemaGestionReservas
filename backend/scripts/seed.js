@@ -20,18 +20,19 @@ const seedData = async () => {
       process.exit(1);
     }
 
+    console.log('Desactivando creación automática de colecciones de Mongoose para el sembrado...');
+    mongoose.set('autoCreate', false);
     console.log('Conectando a MongoDB para poblar datos...');
     await mongoose.connect(mongoURI);
     console.log('Conexión establecida.');
 
-    // 1. Limpiar todas las colecciones
     console.log('Limpiando colecciones anteriores...');
     await Usuario.deleteMany({});
     await Cliente.deleteMany({});
     await Reserva.deleteMany({});
     await Menu.deleteMany({});
     await Resena.deleteMany({});
-    
+
     try {
       await mongoose.connection.db.dropCollection('auditoria_logs');
       console.log('Colección "auditoria_logs" vaciada (drop).');
@@ -170,43 +171,73 @@ const seedData = async () => {
     ]);
     console.log(`Se insertaron ${clientes.length} clientes.`);
 
-    // 5. Calcular fechas dinámicas para pruebas
-    const hoy = new Date();
-    const hoyUTC = new Date(Date.UTC(hoy.getFullYear(), hoy.getMonth(), hoy.getDate(), 0, 0, 0, 0));
-    
-    const mañana = new Date();
-    mañana.setDate(mañana.getDate() + 1);
-    const mañanaUTC = new Date(Date.UTC(mañana.getFullYear(), mañana.getMonth(), mañana.getDate(), 0, 0, 0, 0));
+    // 5. Calcular fechas específicas para pruebas (Exposición: 23, 24 y 25 de Junio 2026)
+    const dia22UTC = new Date(Date.UTC(2026, 5, 22, 0, 0, 0, 0)); // 22 de Junio
+    const hoyUTC = new Date(Date.UTC(2026, 5, 23, 0, 0, 0, 0));   // 23 de Junio (Hoy)
+    const mañanaUTC = new Date(Date.UTC(2026, 5, 24, 0, 0, 0, 0)); // 24 de Junio (Mañana)
+    const dia25UTC = new Date(Date.UTC(2026, 5, 25, 0, 0, 0, 0));  // 25 de Junio
+    const ayerUTC = dia22UTC;
 
-    const ayer = new Date();
-    ayer.setDate(ayer.getDate() - 1);
-    const ayerUTC = new Date(Date.UTC(ayer.getFullYear(), ayer.getMonth(), ayer.getDate(), 0, 0, 0, 0));
-
-    // 6. Insertar Reservas
+    // 6. Insertar Reservas (5 por día: 23, 24 y 25 de Junio)
     console.log('Insertando reservas...');
     
     const reservasData = [
+      // --- 23 DE JUNIO (5 Reservas) ---
       {
         cliente_id: clientes[0]._id,
         fecha_reserva: hoyUTC,
-        hora_reserva: '20:30',
-        cantidad_personas: 4,
+        hora_reserva: '13:00',
+        cantidad_personas: 2,
         estado: 'confirmada',
         datos_contacto: { nombre: clientes[0].nombre_completo, telefono: clientes[0].telefono }
       },
       {
         cliente_id: clientes[1]._id,
         fecha_reserva: hoyUTC,
-        hora_reserva: '21:00',
-        cantidad_personas: 2,
+        hora_reserva: '14:30',
+        cantidad_personas: 4,
         estado: 'confirmada',
         datos_contacto: { nombre: clientes[1].nombre_completo, telefono: clientes[1].telefono }
       },
       {
         cliente_id: clientes[2]._id,
         fecha_reserva: hoyUTC,
-        hora_reserva: '19:30',
+        hora_reserva: '20:00',
         cantidad_personas: 3,
+        estado: 'confirmada',
+        datos_contacto: { nombre: clientes[2].nombre_completo, telefono: clientes[2].telefono }
+      },
+      {
+        cliente_id: clientes[3]._id,
+        fecha_reserva: hoyUTC,
+        hora_reserva: '21:00',
+        cantidad_personas: 2,
+        estado: 'pendiente',
+        datos_contacto: { nombre: clientes[3].nombre_completo, telefono: clientes[3].telefono }
+      },
+      {
+        cliente_id: clientes[0]._id,
+        fecha_reserva: hoyUTC,
+        hora_reserva: '21:30',
+        cantidad_personas: 5,
+        estado: 'cancelada',
+        datos_contacto: { nombre: clientes[0].nombre_completo, telefono: clientes[0].telefono }
+      },
+
+      // --- 24 DE JUNIO (5 Reservas) ---
+      {
+        cliente_id: clientes[1]._id,
+        fecha_reserva: mañanaUTC,
+        hora_reserva: '13:30',
+        cantidad_personas: 6,
+        estado: 'confirmada',
+        datos_contacto: { nombre: clientes[1].nombre_completo, telefono: clientes[1].telefono }
+      },
+      {
+        cliente_id: clientes[2]._id,
+        fecha_reserva: mañanaUTC,
+        hora_reserva: '14:00',
+        cantidad_personas: 2,
         estado: 'pendiente',
         datos_contacto: { nombre: clientes[2].nombre_completo, telefono: clientes[2].telefono }
       },
@@ -214,25 +245,67 @@ const seedData = async () => {
         cliente_id: clientes[3]._id,
         fecha_reserva: mañanaUTC,
         hora_reserva: '20:00',
-        cantidad_personas: 5,
+        cantidad_personas: 4,
         estado: 'confirmada',
         datos_contacto: { nombre: clientes[3].nombre_completo, telefono: clientes[3].telefono }
       },
       {
         cliente_id: clientes[0]._id,
         fecha_reserva: mañanaUTC,
-        hora_reserva: '21:30',
+        hora_reserva: '20:30',
         cantidad_personas: 2,
+        estado: 'confirmada',
+        datos_contacto: { nombre: clientes[0].nombre_completo, telefono: clientes[0].telefono }
+      },
+      {
+        cliente_id: clientes[1]._id,
+        fecha_reserva: mañanaUTC,
+        hora_reserva: '22:00',
+        cantidad_personas: 3,
+        estado: 'confirmada',
+        datos_contacto: { nombre: clientes[1].nombre_completo, telefono: clientes[1].telefono }
+      },
+
+      // --- 25 DE JUNIO (5 Reservas) ---
+      {
+        cliente_id: clientes[2]._id,
+        fecha_reserva: dia25UTC,
+        hora_reserva: '13:00',
+        cantidad_personas: 2,
+        estado: 'confirmada',
+        datos_contacto: { nombre: clientes[2].nombre_completo, telefono: clientes[2].telefono }
+      },
+      {
+        cliente_id: clientes[3]._id,
+        fecha_reserva: dia25UTC,
+        hora_reserva: '19:30',
+        cantidad_personas: 4,
+        estado: 'confirmada',
+        datos_contacto: { nombre: clientes[3].nombre_completo, telefono: clientes[3].telefono }
+      },
+      {
+        cliente_id: clientes[0]._id,
+        fecha_reserva: dia25UTC,
+        hora_reserva: '20:00',
+        cantidad_personas: 3,
         estado: 'pendiente',
         datos_contacto: { nombre: clientes[0].nombre_completo, telefono: clientes[0].telefono }
       },
       {
         cliente_id: clientes[1]._id,
-        fecha_reserva: ayerUTC,
-        hora_reserva: '13:00',
-        cantidad_personas: 6,
-        estado: 'cancelada',
+        fecha_reserva: dia25UTC,
+        hora_reserva: '21:00',
+        cantidad_personas: 2,
+        estado: 'confirmada',
         datos_contacto: { nombre: clientes[1].nombre_completo, telefono: clientes[1].telefono }
+      },
+      {
+        cliente_id: clientes[2]._id,
+        fecha_reserva: dia25UTC,
+        hora_reserva: '21:30',
+        cantidad_personas: 4,
+        estado: 'confirmada',
+        datos_contacto: { nombre: clientes[2].nombre_completo, telefono: clientes[2].telefono }
       }
     ];
 

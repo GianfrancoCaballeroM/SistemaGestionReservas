@@ -150,3 +150,37 @@ Ruta: `/login` → redirige a `/dashboard`.
 | `npm run build` | Build producción |
 | `npm run preview` | Previsualizar build |
 | `npm run lint` | ESLint |
+
+---
+
+## Despliegue (Deployment)
+
+El proyecto está diseñado para ser desplegado fácilmente en plataformas modernas de nube. Debido a que el frontend (React) se ejecuta en el navegador del cliente y no puede comunicarse directamente con la base de datos (por seguridad y arquitectura), **es obligatorio desplegar tanto el Backend como el Frontend** si se desea que el sistema funcione de forma pública (por ejemplo, para que el profesor lo pruebe desde su propia computadora).
+
+### 1. Backend (Despliegue en Railway)
+
+Railway es ideal para ejecutar aplicaciones Node.js + Express:
+1. Crea una cuenta en [Railway](https://railway.app/).
+2. Crea un nuevo proyecto y selecciona **Deploy from GitHub repo**.
+3. Selecciona este repositorio (`SistemaGestionReservas`).
+4. En la configuración del servicio en Railway, establece:
+   *   **Root Directory:** `backend` (esto indica a Railway que compile y ejecute únicamente el código del backend).
+5. Configura las siguientes **Variables de Entorno (Variables)** en Railway:
+   *   `MONGO_URI`: Tu cadena de conexión de MongoDB Atlas (asegúrate de que tu clúster de Atlas acepte conexiones desde cualquier IP `0.0.0.0/0` para que Railway pueda conectarse).
+   *   `JWT_SECRET`: Una clave secreta robusta para firmar los tokens JWT.
+   *   `JWT_EXPIRES_IN`: `8h`
+6. Guarda la configuración. Railway construirá el backend y te dará una URL pública (ej. `https://tu-proyecto-production.up.railway.app`). Esta será tu URL de la API.
+
+### 2. Frontend (Despliegue en Vercel)
+
+Vercel es perfecto para aplicaciones estáticas de React con Vite:
+1. Crea una cuenta en [Vercel](https://vercel.com/).
+2. Crea un nuevo proyecto y selecciona **Import** para este repositorio de GitHub.
+3. En la pantalla de configuración del proyecto en Vercel:
+   *   **Root Directory:** Haz clic en *Edit* y selecciona la carpeta `frontend`.
+   *   **Framework Preset:** Selecciona *Vite* (se autodetecta).
+4. Despliega la pestaña de **Environment Variables** y agrega:
+   *   `VITE_API_URL`: Coloca la URL pública provista por Railway (ej. `https://tu-proyecto-production.up.railway.app`). **Nota:** No incluyas `/api` al final, el código del frontend ya lo concatena automáticamente.
+5. Haz clic en **Deploy**. Vercel compilará la aplicación React y te entregará una URL pública para acceder a la aplicación desde cualquier dispositivo.
+
+*(Nota: Ya se incluyó el archivo `frontend/vercel.json` en el repositorio para configurar redirecciones automáticas y evitar errores 404 al recargar la página en rutas secundarias de React Router).*
