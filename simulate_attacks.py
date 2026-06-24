@@ -23,7 +23,7 @@ print("Si el sistema tuviera Rate Limiting o WAF, nos bloquearía tras 5 o 10 in
 
 inicio = time.time()
 exito_bloqueo = False
-intentos = 30  # Haremos 30 intentos rápidos para demostrarlo
+intentos = 1000  # Haremos 30 intentos rápidos para demostrarlo
 
 for i in range(1, intentos + 1):
     password_intento = f"clave_falsa_{i}"
